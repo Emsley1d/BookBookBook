@@ -1,3 +1,3 @@
 # BookBookBook
 
-A practice project built in React
+A practice exercise with React
