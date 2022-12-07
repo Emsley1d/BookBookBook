@@ -33,63 +33,58 @@ const App = () => {
     },
   ];
 
-    const [searchTerm, setSearchTerm] = React.useState('');
+  const [searchTerm, setSearchTerm] = React.useState('');
 
-    const handleSearch = (event) => {
-      setSearchTerm(event.target.value);
-    };
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
 
-    const searchedBooks = books.filter(function (book) {
-      return book.title.includes(searchTerm);
-    });
-
-    const Search = (props) => (
-    <div>
-      <label htmlFor="search">Search: </label>
-      <input id="search" type="text" onChange={props.onSearch}></input>
-      
-      <p>
-        Searching for <strong>{searchTerm}</strong>
-      </p>
-
-    </div>
+  const searchedBooks = books.filter((book) =>
+    book.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const List = (props) => (
-    <ul>
-      {props.list.map((item) => (
-        <Item key={item.objectID} item={item} />
-          ))}
-    </ul>
-      
-); 
-          
-    const Item = (props) => (
-      <li>
-      <span>
-        <a href={props.item.url}>{props.item.title} </a>
-      </span>
-      <span>by {props.item.author}</span>
-      <br />
-      <span>Number of comments: {props.item.num_comments}</span>
-      <br />
-      <span>Rating: {props.item.rating}</span>
-      </li>
-    )
+  return (
+    <div>
+      <h1>{title.name}</h1>
+      <h3>{title.tagline}</h3>
 
-      return (
-      <div>
-        <h1>{title.name}</h1>
-        <h3>{title.tagline}</h3>
+      <Search onSearch={handleSearch} />
 
-        <Search onSearch={handleSearch} />
+      <hr />
 
-        <br />
-        <hr />
+      <List list={searchedBooks} />
+    </div>
+  );
+};
 
-        <List list={searchedBooks} />
-      </div>
-      );
-      };
+const Search = (props) => (
+  <div>
+    <label htmlFor="search">Search: </label>
+    <input id="search" type="text" onChange={props.onSearch} />
+  </div>
 
-      export default App;
+);
+
+const List = (props) => (
+  <ul>
+    {props.list.map((item) => (
+      <Item key={item.objectID} item={item} />
+    ))}
+  </ul>
+);
+
+const Item = (props) => (
+  <li>
+    <span>
+      <a href={props.item.url}>{props.item.title}</a>
+    </span>
+    <br />
+    <span>Author: {props.item.author}</span>
+    <br />
+    <span>Comments: {props.item.num_comments}</span>
+    <br />
+    <span>Rating: {props.item.rating}</span>
+  </li>
+);
+
+export default App;
