@@ -33,24 +33,27 @@ const App = () => {
     },
   ];
 
-  const Search = () => {
     const [searchTerm, setSearchTerm] = React.useState('');
 
-    const handleChange = (event) => {
+    const handleSearch = (event) => {
       setSearchTerm(event.target.value);
     };
 
-    return (
+    const searchedBooks = books.filter(function (book) {
+      return book.title.includes(searchTerm);
+    });
+
+    const Search = (props) => (
     <div>
       <label htmlFor="search">Search: </label>
-      <input id="search" type="text" onChange={handleChange}></input>
+      <input id="search" type="text" onChange={props.onSearch}></input>
       
       <p>
         Searching for <strong>{searchTerm}</strong>
       </p>
 
     </div>
-  )};
+  );
 
   const List = (props) => (
     <ul>
@@ -72,21 +75,21 @@ const App = () => {
       <br />
       <span>Rating: {props.item.rating}</span>
       </li>
-      );
+    )
 
       return (
       <div>
         <h1>{title.name}</h1>
         <h3>{title.tagline}</h3>
 
-        <Search />
+        <Search onSearch={handleSearch} />
 
         <br />
         <hr />
 
-        <List list={books} />
+        <List list={searchedBooks} />
       </div>
       );
-};
+      };
 
       export default App;
