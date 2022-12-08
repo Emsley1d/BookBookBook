@@ -52,11 +52,23 @@ const getAsyncBooks = () =>
     )
   );
 
+const booksReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_BOOKS':
+      return action.payload;
+    case 'REMOVE_BOOK':
+      return state.filter(
+        (story) => action.payload.objectID !== story.objectID
+      );
+  }
+}
+
 const App = () => {
 
   const [searchTerm, setSearchTerm] = useStorageState("search", '');
 
-  const [books, setBooks] = React.useState([]);
+  // const [books, setBooks] = React.useState([]);
+  const [books, dispatchBooks] = React.useReducer(booksReducer,[]);
   const [isLoading, setIsLoading] = React.useState(false); 
   const [isError, setIsError] = React.useState(false)
 
@@ -65,7 +77,10 @@ const App = () => {
     setIsLoading(true);
 
     getAsyncBooks().then(result => {
-      setBooks(result.data.books);
+      dispatchBooks({
+        type: 'SET_BOOKS',
+        payload: result.data.books
+      });
       setIsLoading(false);
     })
     .catch(() => setIsError(true));
@@ -75,8 +90,10 @@ const App = () => {
     const newBooks = books.filter(
       (book) => item.objectID !== book.objectID
     );
-
-    setBooks(newBooks)
+    dispatchBooks({
+      type:'SET_BOOKS',
+      payload: newBooks,
+    });
   };
 
   React.useEffect(() => {
