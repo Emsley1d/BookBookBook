@@ -44,11 +44,25 @@ const initialBooks = [
   },
 ];
 
+const getAsyncBooks = () =>
+  new Promise((resolve) =>
+    setTimeout(
+      () => resolve({ data: { books: initialBooks } }),
+      2000
+    )
+  );
+
 const App = () => {
 
-  const [searchTerm, setSearchTerm] = useStorageState("search", "React");
+  const [searchTerm, setSearchTerm] = useStorageState("search", '');
 
-  const [books, setBooks] = React.useState(initialBooks);
+  const [books, setBooks] = React.useState([]);
+
+  React.useEffect(() => {
+    getAsyncBooks().then(result => {
+      setBooks(result.data.books)
+    });
+  }, []);
 
   const handleRemoveBook = (item) => {
     const newBooks = books.filter(
@@ -120,29 +134,29 @@ const InputWithLabel = ({
       <label htmlFor={id}>{children}</label>
       &nbsp;
       <input
-        ref={inputRef} 
-        id={id} 
-        type={type} 
-        value={value} 
-        autoFocus={isFocused} 
+        ref={inputRef}
+        id={id}
+        type={type}
+        value={value}
+        autoFocus={isFocused}
         onChange={onInputChange} />
     </>
   );
-  }
+}
 
-  const List = ({ list, onRemoveItem }) => (
-    <ul>
-      {list.map((item) => (
-        <Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />
-      ))}
-    </ul>
-  );
+const List = ({ list, onRemoveItem }) => (
+  <ul>
+    {list.map((item) => (
+      <Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />
+    ))}
+  </ul>
+);
 
-  const Item = ({ item, onRemoveItem }) => {
-    const handleRemoveItem = () => {
-      onRemoveItem(item);
-    };
-    return (
+const Item = ({ item, onRemoveItem }) => {
+  const handleRemoveItem = () => {
+    onRemoveItem(item);
+  };
+  return (
     <li>
       <span>
         <a href={item.url}>{item.title}</a>
@@ -156,9 +170,9 @@ const InputWithLabel = ({
       <span>
         <button type="button" onClick={() => onRemoveItem(item)}>
           Remove
-          </button>
+        </button>
       </span>
     </li>
   );
-    };
-  export default App;
+};
+export default App;
