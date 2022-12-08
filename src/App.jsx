@@ -57,11 +57,18 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useStorageState("search", '');
 
   const [books, setBooks] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false); 
+  const [isError, setIsError] = React.useState(false)
+
 
   React.useEffect(() => {
+    setIsLoading(true);
+
     getAsyncBooks().then(result => {
-      setBooks(result.data.books)
-    });
+      setBooks(result.data.books);
+      setIsLoading(false);
+    })
+    .catch(() => setIsError(true));
   }, []);
 
   const handleRemoveBook = (item) => {
@@ -100,11 +107,17 @@ const App = () => {
         <strong>Search:</strong>
       </InputWithLabel>
 
-      {/* <Search search={searchTerm} onSearch={handleSearch} /> */}
 
       <hr />
 
+      {isError && <p>Something went wrong, please try again...</p>}
+
+      {isLoading ? (
+        <p>Loading Library...</p>
+      ) : (
+
       <List list={searchedBooks} onRemoveItem={handleRemoveBook} />
+  )}
     </div>
   );
 };
@@ -129,7 +142,6 @@ const InputWithLabel = ({
 
   return (
     <>
-      {/* {" "} */}
       {/* this is a react fragment; shorthand version of <React.Fragment> */}
       <label htmlFor={id}>{children}</label>
       &nbsp;
