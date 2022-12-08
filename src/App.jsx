@@ -45,17 +45,14 @@ const App = () => {
     },
   ];
 
-  const [searchTerm, setSearchTerm] = useStorageState(
-    'search',
-    'React'
-  );
+  const [searchTerm, setSearchTerm] = useStorageState("search", "React");
 
   React.useEffect(() => {
-    localStorage.setItem('search', searchTerm);
+    localStorage.setItem("search", searchTerm);
   }, [searchTerm]);
 
   const handleSearch = (event) => {
-    setSearchTerm(event.target.value)
+    setSearchTerm(event.target.value);
   };
 
   const searchedBooks = books.filter((book) =>
@@ -67,7 +64,17 @@ const App = () => {
       <h1>{title.name}</h1>
       <h3>{title.tagline}</h3>
 
-      <Search search={searchTerm} onSearch={handleSearch} />
+      <InputWithLabel
+        id="search"
+        label="Search"
+        value={searchTerm}
+        onInputChange={handleSearch}
+      >
+
+        <strong>Search:</strong>
+      </InputWithLabel>
+
+      {/* <Search search={searchTerm} onSearch={handleSearch} /> */}
 
       <hr />
 
@@ -76,19 +83,17 @@ const App = () => {
   );
 };
 
-const Search = ({search, onSearch}) => (
-  <div>
-    <label htmlFor="search">Search: </label>
-    <input 
-      id="search" 
-      type="text" 
-      value={search} 
-      onChange={onSearch} 
-    />
-  </div>
+const InputWithLabel = ({ id, label, value, type = "text", onInputChange, children }) => (
+  <>
+    {" "}
+    {/* this is a react fragment; shorthand version of <React.Fragment> */}
+    <label htmlFor={id}>{children}</label>
+    &nbsp;
+    <input id={id} type={type} value={value} onChange={onInputChange} />
+  </>
 );
 
-const List = ({list}) => (
+const List = ({ list }) => (
   <ul>
     {list.map((item) => (
       <Item key={item.objectID} item={item} />
@@ -96,7 +101,7 @@ const List = ({list}) => (
   </ul>
 );
 
-const Item = ({item}) => (
+const Item = ({ item }) => (
   <li>
     <span>
       <a href={item.url}>{item.title}</a>
