@@ -1,8 +1,8 @@
 import * as React from "react";
 
 const title = {
-  name: "Book Book Book",
-  tagline: "Personal Book Library",
+  name: "React News",
+  tagline: "All things React...",
 };
 
 const useStorageState = (key, initialState) => {
@@ -17,72 +17,45 @@ const useStorageState = (key, initialState) => {
   return [value, setValue];
 };
 
-const initialBooks = [
-  {
-    title: "Project Hail Mary",
-    author: "Andy Weir",
-    url: "https://en.wikipedia.org/wiki/Project_Hail_Mary",
-    num_comments: 2,
-    rating: 4.5,
-    objectID: 0,
-  },
-  {
-    title: "The Martian",
-    author: "Andy Weir",
-    url: "https://en.wikipedia.org/wiki/The_Martian_(Weir_novel)",
-    num_comments: 4,
-    rating: 5,
-    objectID: 1,
-  },
-  {
-    title: "The Long Earth",
-    author: "Terry Pratchett",
-    url: "https://en.wikipedia.org/wiki/The_Long_Earth",
-    num_comments: 1,
-    rating: 4,
-    objectID: 2,
-  },
-];
-
-const getAsyncBooks = () =>
+const getAsyncStories = () =>
   new Promise((resolve) =>
     setTimeout(
-      () => resolve({ data: { books: initialBooks } }),
+      () => resolve({ data: { stories: initialStories } }),
       2000
     )
   );
 
-// const getAsyncBooks = () =>
+// const getAsyncStories = () =>
 //   new Promise((resolve, reject) =>
 //     setTimeout(reject, 2000));
 
 
-const booksReducer = (state, action) => {
+const storiesReducer = (state, action) => {
   switch (action.type) {
-    case 'BOOKS_FETCH_INIT':
+    case 'STORIES_FETCH_INIT':
       return {
         ...state,
         isLoading: true,
         isError: false,
       };
-    case 'BOOKS_FETCH_SUCCESS':
+    case 'STORIES_FETCH_SUCCESS':
       return {
         ...state,
         isLoading: false,
         isError: false,
         data: action.payload,
       };
-    case 'BOOKS_FETCH_FAILURE':
+    case 'STORIES_FETCH_FAILURE':
       return {
         ...state,
         isLoading: false,
         isError: true,
       };
-    case 'REMOVE_BOOK':
+    case 'REMOVE_STORY':
       return {
         ...state,
         data: state.data.filter(
-          (book) => action.payload.objectID !== book.objectID
+          (story) => action.payload.objectID !== story.objectID
         ),
       };
     default:
@@ -90,39 +63,43 @@ const booksReducer = (state, action) => {
   }
 };
 
+const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
+
 const App = () => {
 
-  const [searchTerm, setSearchTerm] = useStorageState("search", " ");
+  const [searchTerm, setSearchTerm] = useStorageState('search', 'React');
 
-  // const [books, dispatchBooks] = React.useReducer(booksReducer,[]);
+  // const [stories, dispatchStories] = React.useReducer(storiesReducer,[]);
   // const [isLoading, setIsLoading] = React.useState(false); 
   // const [isError, setIsError] = React.useState(false)
 
   // Above can be reduced to the below:
 
-  const [books, dispatchBooks] = React.useReducer(booksReducer,
+  const [stories, dispatchStories] = React.useReducer(storiesReducer,
     { data: [], isLoading: false, isError: false }
   );
 
 
   React.useEffect(() => {
-    dispatchBooks({ type: 'BOOKS_FETCH_INIT' });
+    dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    getAsyncBooks().then(result => {
-      dispatchBooks({
-        type: 'BOOKS_FETCH_SUCCESS',
-        payload: result.data.books,
+    fetch(`${API_ENDPOINT}react`)
+    .then((response) => response.json())
+    .then(result => {
+      dispatchStories({
+        type: 'STORIES_FETCH_SUCCESS',
+        payload: result.hits,
       });
     })
       .catch(() =>
-        dispatchBooks({ type: 'BOOKS_FETCH_FAILURE' })
+        dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
       );
   }, []);
 
-  const handleRemoveBook = (item) => {
+  const handleRemoveStory = (item) => {
 
-    dispatchBooks({
-      type: 'REMOVE_BOOK',
+    dispatchStories({
+      type: 'REMOVE_STORY',
       payload: item,
     });
   };
@@ -131,8 +108,8 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  const searchedBooks = books.data.filter((book) => 
-    book.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const searchedStories = stories.data.filter((story) => 
+    story.title.toLowerCase().includes(searchTerm.toLowerCase())
 );
 
   return (
@@ -148,21 +125,21 @@ const App = () => {
         onInputChange={handleSearch}
       >
 
-        <strong>Search by title:</strong>
+        <strong>Search:</strong>
       </InputWithLabel>
 
 
       <hr />
 
-      {books.isError && <p>Something went wrong, please try again...</p>}
+      {stories.isError && <p>Something went wrong, please try again...</p>}
 
-      {books.isLoading ? (
+      {stories.isLoading ? (
         <p>Loading Library...</p>
       ) : (
 
         <List 
-        list={searchedBooks} 
-        onRemoveItem={handleRemoveBook} 
+        list={searchedStories} 
+        onRemoveItem={handleRemoveStory} 
         />
       )}
     </div>
