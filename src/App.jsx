@@ -92,7 +92,7 @@ const booksReducer = (state, action) => {
 
 const App = () => {
 
-  const [searchTerm, setSearchTerm] = useStorageState("search", '');
+  const [searchTerm, setSearchTerm] = useStorageState("search", " ");
 
   // const [books, dispatchBooks] = React.useReducer(booksReducer,[]);
   // const [isLoading, setIsLoading] = React.useState(false); 
@@ -120,18 +120,12 @@ const App = () => {
   }, []);
 
   const handleRemoveBook = (item) => {
-    const newBooks = books.filter(
-      (book) => item.objectID !== book.objectID
-    );
+
     dispatchBooks({
-      type: 'SET_BOOKS',
-      payload: newBooks,
+      type: 'REMOVE_BOOK',
+      payload: item,
     });
   };
-
-  React.useEffect(() => {
-    localStorage.setItem("search", searchTerm);
-  }, [searchTerm]);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -195,7 +189,6 @@ const InputWithLabel = ({
 
   return (
     <>
-      {/* this is a react fragment; shorthand version of <React.Fragment> */}
       <label htmlFor={id}>{children}</label>
       &nbsp;
       <input
@@ -217,11 +210,7 @@ const List = ({ list, onRemoveItem }) => (
   </ul>
 );
 
-const Item = ({ item, onRemoveItem }) => {
-  const handleRemoveItem = () => {
-    onRemoveItem(item);
-  };
-  return (
+const Item = ({ item, onRemoveItem }) => (
     <li>
       <span>
         <a href={item.url}>{item.title}</a>
@@ -240,5 +229,5 @@ const Item = ({ item, onRemoveItem }) => {
       </span>
     </li>
   );
-};
+
 export default App;
