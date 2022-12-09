@@ -52,38 +52,71 @@ const getAsyncBooks = () =>
     )
   );
 
+// const getAsyncBooks = () =>
+//   new Promise((resolve, reject) =>
+//     setTimeout(reject, 2000));
+
+
 const booksReducer = (state, action) => {
   switch (action.type) {
-    case 'SET_BOOKS':
-      return action.payload;
+    case 'BOOKS_FETCH_INIT':
+      return {
+        ...state,
+        isLoading: true,
+        isError: false,
+      };
+    case 'BOOKS_FETCH_SUCCESS':
+      return {
+        ...state,
+        isLoading: false,
+        isError: false,
+        data: action.payload,
+      };
+    case 'BOOKS_FETCH_FAILURE':
+      return {
+        ...state,
+        isLoading: false,
+        isError: true,
+      };
     case 'REMOVE_BOOK':
-      return state.filter(
-        (story) => action.payload.objectID !== story.objectID
-      );
+      return {
+        ...state,
+        data: state.data.filter(
+          (book) => action.payload.objectID !== book.objectID
+        ),
+      };
+    default:
+      throw new Error();
   }
-}
+};
 
 const App = () => {
 
   const [searchTerm, setSearchTerm] = useStorageState("search", '');
 
-  // const [books, setBooks] = React.useState([]);
-  const [books, dispatchBooks] = React.useReducer(booksReducer,[]);
-  const [isLoading, setIsLoading] = React.useState(false); 
-  const [isError, setIsError] = React.useState(false)
+  // const [books, dispatchBooks] = React.useReducer(booksReducer,[]);
+  // const [isLoading, setIsLoading] = React.useState(false); 
+  // const [isError, setIsError] = React.useState(false)
+
+  // Above can be reduced to the below:
+
+  const [books, dispatchBooks] = React.useReducer(booksReducer,
+    { data: [], isLoading: false, isError: false }
+  );
 
 
   React.useEffect(() => {
-    setIsLoading(true);
+    dispatchBooks({ type: 'BOOKS_FETCH_INIT' });
 
     getAsyncBooks().then(result => {
       dispatchBooks({
-        type: 'SET_BOOKS',
-        payload: result.data.books
+        type: 'BOOKS_FETCH_SUCCESS',
+        payload: result.data.books,
       });
-      setIsLoading(false);
     })
-    .catch(() => setIsError(true));
+      .catch(() =>
+        dispatchBooks({ type: 'BOOKS_FETCH_FAILURE' })
+      );
   }, []);
 
   const handleRemoveBook = (item) => {
@@ -91,7 +124,7 @@ const App = () => {
       (book) => item.objectID !== book.objectID
     );
     dispatchBooks({
-      type:'SET_BOOKS',
+      type: 'SET_BOOKS',
       payload: newBooks,
     });
   };
@@ -104,9 +137,9 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  const searchedBooks = books.filter((book) =>
+  const searchedBooks = books.data.filter((book) => 
     book.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+);
 
   return (
     <div>
@@ -121,20 +154,23 @@ const App = () => {
         onInputChange={handleSearch}
       >
 
-        <strong>Search:</strong>
+        <strong>Search by title:</strong>
       </InputWithLabel>
 
 
       <hr />
 
-      {isError && <p>Something went wrong, please try again...</p>}
+      {books.isError && <p>Something went wrong, please try again...</p>}
 
-      {isLoading ? (
+      {books.isLoading ? (
         <p>Loading Library...</p>
       ) : (
 
-      <List list={searchedBooks} onRemoveItem={handleRemoveBook} />
-  )}
+        <List 
+        list={searchedBooks} 
+        onRemoveItem={handleRemoveBook} 
+        />
+      )}
     </div>
   );
 };
@@ -197,6 +233,7 @@ const Item = ({ item, onRemoveItem }) => {
       <br />
       <span>Rating: {item.rating}</span>
       <span>
+      <br />
         <button type="button" onClick={() => onRemoveItem(item)}>
           Remove
         </button>
