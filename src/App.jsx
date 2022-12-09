@@ -81,9 +81,11 @@ const App = () => {
 
 
   React.useEffect(() => {
+    if(!searchTerm) return;
+
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    fetch(`${API_ENDPOINT}react`)
+    fetch(`${API_ENDPOINT}${searchTerm}`)
     .then((response) => response.json())
     .then(result => {
       dispatchStories({
@@ -94,7 +96,7 @@ const App = () => {
       .catch(() =>
         dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
       );
-  }, []);
+  }, [searchTerm]);
 
   const handleRemoveStory = (item) => {
 
@@ -108,9 +110,9 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  const searchedStories = stories.data.filter((story) => 
-    story.title.toLowerCase().includes(searchTerm.toLowerCase())
-);
+//   const searchedStories = stories.data.filter((story) => 
+//     story.title.toLowerCase().includes(searchTerm.toLowerCase())
+// );
 
   return (
     <div>
@@ -138,7 +140,7 @@ const App = () => {
       ) : (
 
         <List 
-        list={searchedStories} 
+        list={stories.data} 
         onRemoveItem={handleRemoveStory} 
         />
       )}
@@ -195,15 +197,16 @@ const Item = ({ item, onRemoveItem }) => (
       <br />
       <span>Author: {item.author}</span>
       <br />
-      <span>Comments: {item.num_comments}</span>
+      <span>No. of Comments: {item.num_comments}</span>
       <br />
-      <span>Rating: {item.rating}</span>
+      <span>Points: {item.points}</span>
       <span>
       <br />
         <button type="button" onClick={() => onRemoveItem(item)}>
           Remove
         </button>
       </span>
+
     </li>
   );
 
