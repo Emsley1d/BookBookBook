@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "axios";
 
 const title = {
   name: "React News",
@@ -83,22 +84,19 @@ const App = () => {
     { data: [], isLoading: false, isError: false }
   );
 
-  const handleFetchStories = React.useCallback(() => {
-    if(!searchTerm) return;
-
+  const handleFetchStories = React.useCallback(async () => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    fetch(url)
-    .then((response) => response.json())
-    .then(result => {
+    try {
+      const result = await axios.get(url);
+
       dispatchStories({
         type: 'STORIES_FETCH_SUCCESS',
-        payload: result.hits,
+        payload: result.data.hits,
       });
-    })
-      .catch(() =>
-        dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
-      );
+    } catch {
+      dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
+    }
   }, [url]);
 
   React.useEffect(() => {
@@ -121,9 +119,9 @@ const App = () => {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
   };
 
-//   const searchedStories = stories.data.filter((story) => 
-//     story.title.toLowerCase().includes(searchTerm.toLowerCase())
-// );
+  //   const searchedStories = stories.data.filter((story) => 
+  //     story.title.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   return (
     <div>
@@ -152,9 +150,9 @@ const App = () => {
         <p>Loading Library...</p>
       ) : (
 
-        <List 
-        list={stories.data} 
-        onRemoveItem={handleRemoveStory} 
+        <List
+          list={stories.data}
+          onRemoveItem={handleRemoveStory}
         />
       )}
     </div>
@@ -203,24 +201,24 @@ const List = ({ list, onRemoveItem }) => (
 );
 
 const Item = ({ item, onRemoveItem }) => (
-    <li>
-      <span>
-        <a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}</a>
-      </span>
+  <li>
+    <span>
+      <a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}</a>
+    </span>
+    <br />
+    <span>Author: {item.author}</span>
+    <br />
+    <span>No. of Comments: {item.num_comments}</span>
+    <br />
+    <span>Points: {item.points}</span>
+    <span>
       <br />
-      <span>Author: {item.author}</span>
-      <br />
-      <span>No. of Comments: {item.num_comments}</span>
-      <br />
-      <span>Points: {item.points}</span>
-      <span>
-      <br />
-        <button type="button" onClick={() => onRemoveItem(item)}>
-          Remove
-        </button>
-      </span>
+      <button type="button" onClick={() => onRemoveItem(item)}>
+        Remove
+      </button>
+    </span>
 
-    </li>
-  );
+  </li>
+);
 
 export default App;
