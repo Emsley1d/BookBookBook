@@ -115,34 +115,44 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = (event) => {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
+
+    event.preventDefault();
   };
 
-  //   const searchedStories = stories.data.filter((story) => 
-  //     story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
+  const SearchForm = ({
+    searchTerm,
+    onSearchInput,
+    onSearchSubmit,
+  }) => (
 
-  return (
+      <form onSubmit={onSearchSubmit}>
+        <InputWithLabel
+          id="search"
+          value={searchTerm}
+          isFocused
+          onInputChange={onSearchInput}
+        >
+
+          <strong>Search:</strong>
+        </InputWithLabel>
+
+        <button type="submit" disabled={!searchTerm}>Submit</button>
+      </form>
+  );
+
+  <hr />
+
+    return (
     <div>
       <h1>{title.name}</h1>
       <h3>{title.tagline}</h3>
 
-      <InputWithLabel
-        id="search"
-        label="Search"
-        value={searchTerm}
-        isFocused
-        onInputChange={handleSearchInput}
-      >
-
-        <strong>Search:</strong>
-      </InputWithLabel>
-
-      <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>Submit</button>
-
-
-      <hr />
+      <SearchForm
+      searchTerm={searchTerm}
+      onSearchInput={handleSearchInput}
+      onSearchSubmit={handleSearchSubmit} />
 
       {stories.isError && <p>Something went wrong, please try again...</p>}
 
